@@ -1,0 +1,126 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Budget {
+  id            Int          @id @default(autoincrement())
+  paycycle_type PaycycleType @default(BIWEEKLY)
+  identifier    String       @db.VarChar(255)
+  isActive      Boolean      @default(true)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  templates Templates[]
+  paycycles Paycycles[]
+  accounts  Accounts[]
+
+  @@unique([identifier])
+}
+
+enum PaycycleType {
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+}
+
+model Templates {
+  id            String       @id @default(uuid())
+  identifier    String
+  description   String?
+  template_type TemplateType
+  amount        Int          @default(0)
+  version       Int          @default(1)
+  isActive      Boolean      @default(true)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  budget   Budget @relation(fields: [budgetId], references: [id])
+  budgetId Int
+
+  linkedPaycycleItems PaycycleItems[]
+
+  @@unique([identifier, version])
+}
+
+enum TemplateType {
+  INCOME
+  EXPENSE
+}
+
+model Paycycles {
+  id         String   @id @default(uuid())
+  identifier String   @unique
+  start_date DateTime
+  end_date   DateTime
+  notes      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  budget   Budget @relation(fields: [budgetId], references: [id])
+  budgetId Int
+
+  summary PaycycleSummary?
+  items   PaycycleItems[]
+}
+
+model PaycycleSummary {
+  id              String   @id @default(uuid())
+  budget_income   Int      @default(0)
+  budget_expenses Int      @default(0)
+  budget_balance  Int      @default(0)
+  actual_income   Int      @default(0)
+  actual_expenses Int      @default(0)
+  actual_balance  Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  paycycle          Paycycles @relation(fields: [paycycleSummaryId], references: [id])
+  paycycleSummaryId String    @unique
+}
+
+model PaycycleItems {
+  id          String            @id @default(uuid())
+  identifier  String            @unique
+  description String?
+  group_type  PaycycleGroupType
+  amount      Int
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  paycycle   Paycycles @relation(fields: [paycycleId], references: [id])
+  paycycleId String
+
+  templates   Templates @relation(fields: [templatesId], references: [id])
+  templatesId String
+}
+
+enum PaycycleGroupType {
+  BUDGET
+  ACTUAL
+}
+
+model Accounts {
+  id          String  @id @default(uuid())
+  identifier  String  @unique
+  description String?
+  isLiability Boolean @default(false)
+
+  items    AccountItems[]
+  Budget   Budget?        @relation(fields: [budgetId], references: [id])
+  budgetId Int?
+}
+
+model AccountItems {
+  id          String  @id @default(uuid())
+  identifier  String  @unique
+  description String?
+  amount      Int     @default(0)
+
+  account   Accounts? @relation(fields: [accountId], references: [id])
+  accountId String?
+}
