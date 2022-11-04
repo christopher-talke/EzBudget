@@ -1,31 +1,29 @@
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import styles from '../styles/Home.module.css';
 
-import { formatMoney } from '../utils/handleMoney';
-import { formatDate } from '../utils/handleDate';
+import styles from '../../../styles/Home.module.css';
 
-import { DashboardData } from './types';
+import { formatMoney } from '../../../utils/handleMoney';
+import { formatDate } from '../../../utils/handleDate';
+
+import { DashboardData } from '../../types';
 
 export default function Home() {
     const router = useRouter();
+
+    console.log(router);
+
     const { budgetId } = router.query;
     const [data, setData] = useState<any>({});
-    const [isLoading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch('/api/home')
+        fetch(`/api/home?budgetId=${budgetId}`)
             .then((res) => res.json())
             .then((res) => {
                 setData(res);
-                setLoading(false);
             });
     }, []);
-
-    if (data.message === 'BUDGET_NOT_SPECIFIED') {
-        router.push(`/budgets`);
-    }
 
     const budgetTypeMap = {
         WEEKLY: 'Week',

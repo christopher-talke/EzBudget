@@ -4,13 +4,21 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
-import { DashboardData } from '../types';
-
 export default async function handler(req: NextApiRequest, res: NextApiResponse<any>) {
+    const { budgetId } = req.query;
+
     function generateDate(date: Date, offset: number, type: number) {
         if (type < 0) return new Date(date.setDate(date.getDate() - offset));
         return new Date(date.setDate(date.getDate() + offset));
     }
+
+    if (budgetId === undefined) {
+        return res.status(200).json({
+            message: 'BUDGET_NOT_SPECIFIED',
+        });
+    }
+
+    console.log(budgetId);
 
     const paycycleLength = 14;
     const targetStart = generateDate(new Date(), paycycleLength, -1);
@@ -18,12 +26,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
     const results = await prisma.paycycles.findFirst({
         where: {
-            start_date: {
-                gte: targetStart,
-            },
-            end_date: {
-                gte: targetEnd,
-            },
+            OR: [
+                {
+                    start_date: {
+                        gte: targetStart,
+                    },
+                },
+                {
+                    end_date: {
+                        gte: targetEnd,
+                    },
+                },
+            ],
+            AND: [
+                {
+                    budgetId: {
+                        equals: Number(budgetId),
+                    },
+                },
+            ],
         },
         include: {
             budget: {
@@ -37,6 +58,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             },
         },
     });
+
+    if (results === null) {
+        return res.status(200).json({
+            message: 'PAYCYCLE_NOT_FOUND',
+        });
+    }
 
     const { budget: e_budget, ...rest } = results as any;
     const { accounts, ...budget } = e_budget;

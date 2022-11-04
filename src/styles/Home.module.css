@@ -3,10 +3,12 @@
     max-width: max-content;
     min-height: 900px;
     margin: 0 auto;
-    border-radius: 20px;
+    border-radius: 8px;
+    border: 1px solid #e7e7e7;
     color: #151515;
     padding: 50px;
     margin-bottom: 80px;
+    box-shadow: 0px 1px 2px 0px rgb(60 64 67 / 30%), 0px 1px 3px 1px rgb(60 64 67 / 15%);
 }
 
 .main > div {
@@ -29,18 +31,19 @@
 .card {
     width: 190px;
     height: 200px;
-    border-radius: 20px;
+    border-radius: 8px;
     padding: 24px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    border: 1px solid #e7e7e7;
     z-index: 50;
 }
 
 .card:hover {
     cursor: pointer;
     transition: all 200ms;
-    box-shadow: 0 0 11px rgba(33, 33, 33, 0.2);
+    box-shadow: 0px 1px 2px 0px rgb(60 64 67 / 30%), 0px 1px 3px 1px rgb(60 64 67 / 15%);
 }
 
 .card span {
@@ -102,10 +105,10 @@
 }
 
 @media (prefers-color-scheme: dark) {
-    .card,
+    /* .card,
     .footer {
         border-color: #222;
-    }
+    } */
     .code {
         background: #111;
     }
