@@ -1,0 +1,30 @@
+.oba-form-container {
+    display: flex;
+    flex-direction: column;
+
+    border: 1px solid black;
+    border-radius: 6px;
+    padding: 8px;
+    padding-top:4px;
+}
+
+.oba-form-container h3 {
+    margin: 0;
+    margin-bottom: 16px;
+}
+
+.oba-form-container input, 
+.oba-form-container select, 
+.oba-form-container button {
+    margin-top: 0;
+    margin-bottom: 8px;
+    height: 45px;
+}
+
+
+@media (prefers-color-scheme: dark) {
+    .oba-form-container {
+        border: 1px solid white;
+    }
+  }
+  
